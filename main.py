@@ -8,8 +8,17 @@ account details.
 email: adambenjamin.persson@edu.vellinge.se
 ----------------------------------------------------------- """
 
-# Import the tkinter library to use their classes.
+# Import the tkinter and mysql libraries to use their classes.
 import tkinter as tk
+import mysql.connector
+
+# Setup the database connection.
+mydb = mysql.connector.connect(
+    host="localhost",
+    user="root",
+    password="root",
+    database="testdb"
+)
 
 # Configure the root window.
 root = tk.Tk()
