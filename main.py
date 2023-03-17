@@ -89,7 +89,29 @@ def deposit_connect(username, amount):
     amount = int(amount)
     mycursor.execute("UPDATE accounts SET balance = balance + %s WHERE username = %s", (amount, username))
     mydb.commit()
-    login_click(username)
+    deposit_interface(username)
+
+def withdraw_connect(username, amount):
+    # Check if the amount is a number.
+    if not amount.isdigit():
+        return
+
+    # Get the balance from the database using the username.
+    mycursor.execute("SELECT balance FROM accounts WHERE username = %s", (username,))
+    balance = mycursor.fetchall()
+    for balance_main in balance:
+        for balance_fetch in balance_main:
+            balance = balance_fetch
+
+    # Check if the balance is enough to withdraw the amount.
+    amount = int(amount)
+    if balance < amount:
+        return
+
+    # Update the balance in the database.
+    mycursor.execute("UPDATE accounts SET balance = balance - %s WHERE username = %s", (amount, username))
+    mydb.commit()
+    withdraw_interface(username)
 
 def login_click(username):
     # Clear the interface before creating a new one.
@@ -106,16 +128,16 @@ def login_click(username):
     header_label = tk.Label(root, text="DIGITAL BANK", font=("Arial", 14, "bold"))
     credentials_header_label = tk.Label(root, text="ACCOUNT DETAILS:", font=("Arial", 10, "bold"))
     username_label = tk.Label(root, text=username)
-    currency_label = tk.Label(root, text=str(balance) + "$", font=("Arial", 14))
+    currency_label = tk.Label(root, text="$" + str(balance), font=("Arial", 14), width=10)
     deposit_button = tk.Button(root, text="Deposit", width=15, height=1, command= lambda: deposit_interface(username))
-    withdraw_button = tk.Button(root, text="Withdraw", width=15, height=1)
+    withdraw_button = tk.Button(root, text="Withdraw", width=15, height=1, command= lambda: withdraw_interface(username))
     logout_button = tk.Button(root, text="Logout", width=10, height=1, border=0, font=("Arial", 9, "italic"), command=login_interface)
 
     # Place the root widgets.
     header_label.place(x=93, y=20)
     credentials_header_label.place(x=50, y=60)
     username_label.place(x=50, y=85)
-    currency_label.place(x=250, y=90)
+    currency_label.place(x=210, y=90)
     deposit_button.place(x=45, y=170)
     withdraw_button.place(x=175, y=170)
     logout_button.place(x=128, y=215)
@@ -164,7 +186,7 @@ def deposit_interface(username):
 
     # Create root widgets for the deposit screen.
     amount_label = tk.Label(root, text="Amount:")
-    currency_label = tk.Label(root, text=str(balance) + "$", font=("Arial", 14))
+    currency_label = tk.Label(root, text="$" + str(balance), font=("Arial", 14), width=10)
     amount_entry = tk.Entry(root, width=30)
     header_label = tk.Label(root, text="DIGITAL BANK", font=("Arial", 14, "bold"))
     deposit_button = tk.Button(root, text="Deposit", width=15, height=1, command= lambda: deposit_connect(username, amount_entry.get()))
@@ -174,8 +196,35 @@ def deposit_interface(username):
     header_label.place(x=93, y=20)
     amount_label.place(x=75, y=75)
     amount_entry.place(x=70, y=95)
-    currency_label.place(x=152, y=145)
+    currency_label.place(x=107, y=145)
     deposit_button.place(x=105, y=215)
+    back_button.place(x=123, y=255)
+
+def withdraw_interface(username):
+    # Clear the interface before creating a new one.
+    clearInterface()
+
+    # Get the balance from the database using the username.
+    mycursor.execute("SELECT balance FROM accounts WHERE username = %s", (username,))
+    balance = mycursor.fetchall()
+    for balance_main in balance:
+        for balance_fetch in balance_main:
+            balance = balance_fetch
+
+    # Create root widgets for the withdraw screen.
+    amount_label = tk.Label(root, text="Amount:")
+    currency_label = tk.Label(root, text="$" + str(balance), font=("Arial", 14), width=10)
+    amount_entry = tk.Entry(root, width=30)
+    header_label = tk.Label(root, text="DIGITAL BANK", font=("Arial", 14, "bold"))
+    withdraw_button = tk.Button(root, text="Withdraw", width=15, height=1, command= lambda: withdraw_connect(username, amount_entry.get()))
+    back_button = tk.Button(root, text="Back", width=10, height=1, border=0, font=("Arial", 9, "italic"), command= lambda: login_click(username))
+
+    # Place the root widgets.
+    header_label.place(x=93, y=20)
+    amount_label.place(x=75, y=75)
+    amount_entry.place(x=70, y=95)
+    currency_label.place(x=107, y=145)
+    withdraw_button.place(x=105, y=215)
     back_button.place(x=123, y=255)
 
 def login_interface():
